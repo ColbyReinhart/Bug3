@@ -85,6 +85,10 @@ unsigned long int Population::sterile_male_population(int start_age) {
     return sum;
 }
 
+unsigned long int Population::total_population(int start_age) {
+    return (male_population(start_age) + female_population(start_age) + sterile_male_population(start_age));
+}
+
 unsigned long int Population::cooldown_female_population() {
     unsigned long int sum = 0;
     for (int age = 0; age < BREED_COOLDOWN; ++age) {
@@ -94,7 +98,7 @@ unsigned long int Population::cooldown_female_population() {
 }
 
 void Population::die() {
-    death_rate_ =  DEATH_COEFFICIENT * (male_population(0) + female_population(0) + sterile_male_population(0)) / stable_pop_;
+    death_rate_ =  DEATH_COEFFICIENT * total_population(0) / stable_pop_;
     for(int age = 0; age < MAX_MALE_AGE; ++age) {
         sterile_males_[age] = sterile_males_[age] * (1 - death_rate_);
         males_[age] = males_[age] * (1 - death_rate_);
@@ -122,10 +126,12 @@ void Population::age () {
 void Population::breed () {
     unsigned long int breeds = 0;
     unsigned long int breedable_females = female_population(MATURE_AGE) - cooldown_female_population();
-    mate_rate_ = sterile_male_population(MATURE_AGE) / (male_population(MATURE_AGE) + sterile_male_population(MATURE_AGE));
+    double mate_rate_ = double(male_population(MATURE_AGE)) / double((male_population(MATURE_AGE)) + double(sterile_male_population(MATURE_AGE)));
     breeds = BREED_COEFFICIENT * mate_rate_ * breedable_females;
     unsigned long int new_males = breeds * M_PERCENT * (std::rand() % 40 + 80);
     unsigned long int new_females = breeds * (1 - M_PERCENT) * (std::rand() % 40 + 80);
+    std::cout << new_males << "   " << new_females << "   " << breeds << "   " << mate_rate_ << "   " << male_population(MATURE_AGE) << "   " << sterile_male_population(MATURE_AGE);
+    
     males_[0] = new_males;
     females_[0] = new_females;
 }
@@ -168,11 +174,11 @@ void Population::update () {
         introduce_sterile_males();
     }
     age();
-    //breed();
+    breed();
 }
 
 void Population::iterate (int days) {
-    while(day_ < days) {
+    while(day_ < days && total_population(0) > 0) {
         update();
     }
 }

@@ -6,7 +6,7 @@ const int MAX_FEMALE_AGE = 37;
 const int BREED_COOLDOWN = 3;
 const int MATURE_AGE = 6;
 const float DEATH_COEFFICIENT = 0.5;
-const float BREED_COEFFICIENT = 0.5;
+const float BREED_COEFFICIENT = 0.001;
 const float M_PERCENT = 0.5;
 
 class Population {
@@ -24,6 +24,7 @@ public:
     unsigned long int male_population(int start_age);
     unsigned long int female_population(int start_age);
     unsigned long int sterile_male_population(int start_age);
+    unsigned long int total_population(int start_age);
     unsigned long int cooldown_female_population();
 private:
     unsigned long int males_[MAX_MALE_AGE];
