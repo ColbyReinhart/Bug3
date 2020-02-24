@@ -12,8 +12,8 @@ const float M_PERCENT = 0.5;
 class Population {
 public:
     Population();
-    Population(unsigned long long int start_pop, double sterile_percent, int sterile_interval, int sterile_period, int sterile_age);
-    Population(unsigned long long int start_pop, unsigned long long int sterile_amount, int sterile_interval, int sterile_period, int sterile_age);
+    Population(unsigned long int start_pop, double sterile_percent, int sterile_interval, int sterile_period, int sterile_age);
+    Population(unsigned long int start_pop, unsigned long int sterile_amount, int sterile_interval, int sterile_period, int sterile_age);
     void die();
     void age();
     void breed();
@@ -21,20 +21,20 @@ public:
     void update();
     void iterate(int days);
     void printInfo();
-    unsigned long long int male_population(int start_age);
-    unsigned long long int female_population(int start_age);
-    unsigned long long int sterile_male_population(int start_age);
-    unsigned long long int cooldown_female_population();
+    unsigned long int male_population(int start_age);
+    unsigned long int female_population(int start_age);
+    unsigned long int sterile_male_population(int start_age);
+    unsigned long int cooldown_female_population();
 private:
-    unsigned long long int males_[MAX_MALE_AGE];
-    unsigned long long int females_[MAX_FEMALE_AGE];
-    unsigned long long int sterile_males_[MAX_MALE_AGE];
-    unsigned long long int breeds_[BREED_COOLDOWN];
+    unsigned long int males_[MAX_MALE_AGE];
+    unsigned long int females_[MAX_FEMALE_AGE];
+    unsigned long int sterile_males_[MAX_MALE_AGE];
+    unsigned long int breeds_[BREED_COOLDOWN];
     double death_rate_;
     double mate_rate_;
-    unsigned long long int stable_pop_;
+    unsigned long int stable_pop_;
     double sterile_percent_;
-    unsigned long long int sterile_amount_;
+    unsigned long int sterile_amount_;
     int sterile_interval_;
     int sterile_period_;
     int sterile_age_;

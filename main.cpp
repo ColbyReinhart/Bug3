@@ -8,5 +8,5 @@
 
 int main(){
     Population testPop(1000000, 0.25, 1, -1, 6);
-    testPop.iterate(100);
+    testPop.iterate(1000);
 }
