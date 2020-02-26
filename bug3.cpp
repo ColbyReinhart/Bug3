@@ -1,6 +1,11 @@
 #include "bug3.hpp"
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
+
+//
+// CONSTRUCTORS
+//
 
 Population::Population () {
     unsigned long int males_[MAX_MALE_AGE] = {0};
@@ -61,7 +66,11 @@ Population::Population (unsigned long int start_pop, unsigned long int sterile_a
     day_ = 0;
 }
 
-unsigned long int Population::male_population(int start_age) {
+//
+// Accessors
+//
+
+unsigned long int Population::male_population(int start_age) const {
     unsigned long int sum = 0;
     for (int age = start_age; age < MAX_MALE_AGE; ++age) {
         sum+=males_[age];
@@ -69,7 +78,7 @@ unsigned long int Population::male_population(int start_age) {
     return sum;
 }
 
-unsigned long int Population::female_population(int start_age) {
+unsigned long int Population::female_population(int start_age) const {
     unsigned long int sum = 0;
     for (int age = start_age; age < MAX_FEMALE_AGE; ++age) {
         sum+=females_[age];
@@ -77,7 +86,7 @@ unsigned long int Population::female_population(int start_age) {
     return sum;
 }
 
-unsigned long int Population::sterile_male_population(int start_age) {
+unsigned long int Population::sterile_male_population(int start_age) const {
     unsigned long int sum = 0;
     for (int age = start_age; age < MAX_MALE_AGE; ++age) {
         sum+=sterile_males_[age];
@@ -85,17 +94,21 @@ unsigned long int Population::sterile_male_population(int start_age) {
     return sum;
 }
 
-unsigned long int Population::total_population(int start_age) {
+unsigned long int Population::total_population(int start_age) const {
     return (male_population(start_age) + female_population(start_age) + sterile_male_population(start_age));
 }
 
-unsigned long int Population::cooldown_female_population() {
+unsigned long int Population::cooldown_female_population() const {
     unsigned long int sum = 0;
     for (int age = 0; age < BREED_COOLDOWN; ++age) {
         sum+=breeds_[age];
     }
     return sum;
 }
+
+//
+// MUTATORS
+//
 
 void Population::die() {
     death_rate_ =  DEATH_COEFFICIENT * total_population(0) / stable_pop_;
@@ -144,6 +157,28 @@ void Population::introduce_sterile_males () {
     }
 }
 
+
+void Population::update () {
+    printInfo();
+    if ((day_ < sterile_period_ || sterile_period_ == -1) && day_ % sterile_interval_ == 0) {
+        introduce_sterile_males();
+    }
+    age();
+    breed();
+}
+
+void Population::iterate (int days, int expStart, int expInterval, std::ofstream& o) {
+    while(day_ < days && total_population(0) > 0) {
+        if(day_ >= expStart && (expInterval == -1 || (day_ - expStart) % expInterval == 0))
+            exportData(o);
+        update();
+    }
+}
+
+//
+// OUTPUT/EXPORT
+//
+
 void Population::printInfo() {
     std::cout << "[Day " << day_ << "]\nMales: " << male_population(0) << "\nFemales: " << female_population(0) << "\nSterile: " << sterile_male_population(0) << "\nCooldown: " << cooldown_female_population() << "\nDeath Rate: " << death_rate_ << "\n\n";
     /**std::cout << "Males: ";
@@ -168,17 +203,20 @@ void Population::printInfo() {
     std::cout << "\n";
 }
 
-void Population::update () {
-    printInfo();
-    if ((day_ < sterile_period_ || sterile_period_ == -1) && day_ % sterile_interval_ == 0) {
-        introduce_sterile_males();
-    }
-    age();
-    breed();
-}
-
-void Population::iterate (int days) {
-    while(day_ < days && total_population(0) > 0) {
-        update();
-    }
+// Writes data to a csv file
+std::ofstream& Population::exportData(std::ofstream& out){
+    out << male_population(0)
+    << "," << female_population(0)
+    << "," << sterile_male_population(0)
+    << "," << total_population(0)
+    << "," << death_rate_
+    << "," << mate_rate_
+    << "," << stable_pop_
+    << "," << sterile_percent_
+    << "," << sterile_amount_
+    << "," << sterile_interval_
+    << "," << sterile_period_
+    << "," << sterile_age_
+    << "," << day_ << std::endl;
+    return out;
 }

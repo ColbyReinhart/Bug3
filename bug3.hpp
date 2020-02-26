@@ -1,6 +1,8 @@
 #ifndef BUG_HPP
 #define BUG_HPP
 
+#include <fstream>
+
 const int MAX_MALE_AGE = 30;
 const int MAX_FEMALE_AGE = 37;
 const int BREED_COOLDOWN = 3;
@@ -19,13 +21,14 @@ public:
     void breed();
     void introduce_sterile_males();
     void update();
-    void iterate(int days);
+    void iterate(int days, int expStart, int expInterval, std::ofstream& o);
     void printInfo();
-    unsigned long int male_population(int start_age);
-    unsigned long int female_population(int start_age);
-    unsigned long int sterile_male_population(int start_age);
-    unsigned long int total_population(int start_age);
-    unsigned long int cooldown_female_population();
+    unsigned long int male_population(int start_age) const;
+    unsigned long int female_population(int start_age) const;
+    unsigned long int sterile_male_population(int start_age) const;
+    unsigned long int total_population(int start_age) const;
+    unsigned long int cooldown_female_population() const;
+    std::ofstream& exportData(std::ofstream&); // Writes data to a csv file
 private:
     unsigned long int males_[MAX_MALE_AGE];
     unsigned long int females_[MAX_FEMALE_AGE];
