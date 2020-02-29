@@ -14,32 +14,6 @@ Population::Population () {
     unsigned long int breeds[BREED_COOLDOWN] = {0};
 }
 
-Population::Population (unsigned long int start_pop, double sterile_percent, int sterile_interval, int sterile_period, int sterile_age) {
-    unsigned long int male_pop = start_pop * M_PERCENT;
-    unsigned long int female_pop = start_pop * (1 - M_PERCENT);
-    for (int age = 0; age < MAX_MALE_AGE; ++age) {
-        males_[age] = male_pop/MAX_MALE_AGE;
-    }
-    for (int age = 0; age < MAX_FEMALE_AGE; ++age) {
-        females_[age] = female_pop/MAX_FEMALE_AGE;
-    }
-    for (int age = 0; age < MAX_MALE_AGE; ++age) {
-        sterile_males_[age] = 0;
-    }
-    for (int age = 0; age < BREED_COOLDOWN; ++age) {
-        breeds_[age] = 0;
-    }
-    sterile_percent_ = sterile_percent;
-    sterile_amount_ = -1;
-    sterile_interval_ = sterile_interval;
-    sterile_period_ = sterile_period;
-    sterile_age_ = sterile_age;
-    stable_pop_ = start_pop;
-    death_rate_ = 1;
-    mate_rate_ = 0;
-    day_ = 0;
-}
-
 Population::Population (unsigned long int start_pop, unsigned long int sterile_amount, int sterile_interval, int sterile_period, int sterile_age) {
     unsigned long int male_pop = start_pop * M_PERCENT;
     unsigned long int female_pop = start_pop * (1 - M_PERCENT);
@@ -56,7 +30,6 @@ Population::Population (unsigned long int start_pop, unsigned long int sterile_a
         breeds_[age] = 0;
     }
     sterile_amount_ = sterile_amount;
-    sterile_percent_ = -1;
     sterile_interval_ = sterile_interval;
     sterile_period_ = sterile_period;
     sterile_age_ = sterile_age;
@@ -111,7 +84,7 @@ unsigned long int Population::cooldown_female_population() const {
 //
 
 void Population::die() {
-    death_rate_ =  DEATH_COEFFICIENT * total_population(0) / stable_pop_;
+    death_rate_ =  DEATH_COEFFICIENT * (total_population(0) / stable_pop_);
     for(int age = 0; age < MAX_MALE_AGE; ++age) {
         sterile_males_[age] = sterile_males_[age] * (1 - death_rate_);
         males_[age] = males_[age] * (1 - death_rate_);
@@ -139,7 +112,7 @@ void Population::age () {
 void Population::breed () {
     unsigned long int breeds = 0;
     unsigned long int breedable_females = female_population(MATURE_AGE) - cooldown_female_population();
-    double mate_rate_ = double(male_population(MATURE_AGE)) / double((male_population(MATURE_AGE)) + double(sterile_male_population(MATURE_AGE)));
+    double mate_rate_ = double(male_population(MATURE_AGE)) / (double((male_population(MATURE_AGE)) + double(sterile_male_population(MATURE_AGE))));
     breeds = BREED_COEFFICIENT * mate_rate_ * breedable_females;
     unsigned long int new_males = breeds * M_PERCENT * (std::rand() % 40 + 80);
     unsigned long int new_females = breeds * (1 - M_PERCENT) * (std::rand() % 40 + 80);
@@ -150,11 +123,8 @@ void Population::breed () {
 }
 
 void Population::introduce_sterile_males () {
-    if (sterile_amount_ != -1) {
-        sterile_males_[sterile_age_] = sterile_amount_;
-    } else if (sterile_percent_ != -1) {
-        sterile_males_[sterile_age_] = (sterile_percent_ * (male_population(0) + female_population(0) + sterile_male_population(0)))/MAX_MALE_AGE;
-    }
+    sterile_males_[sterile_age_] = sterile_amount_;
+    total_sterile_introduced_+=sterile_amount_;
 }
 
 
@@ -168,7 +138,7 @@ void Population::update () {
 }
 
 void Population::iterate (int days, int expStart, int expInterval, std::ofstream& o) {
-    while(day_ < days && total_population(0) > 0) {
+    while(day_ <= days && male_population(0) > 0 && female_population(0) > 0) {
         if(day_ >= expStart && (expInterval == -1 || (day_ - expStart) % expInterval == 0))
             exportData(o);
         update();
@@ -212,11 +182,11 @@ std::ofstream& Population::exportData(std::ofstream& out){
     << "," << death_rate_
     << "," << mate_rate_
     << "," << stable_pop_
-    << "," << sterile_percent_
     << "," << sterile_amount_
     << "," << sterile_interval_
     << "," << sterile_period_
     << "," << sterile_age_
-    << "," << day_ << std::endl;
+    << "," << day_ 
+    << "," << total_sterile_introduced_ << std::endl;
     return out;
 }

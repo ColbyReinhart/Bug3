@@ -14,7 +14,6 @@ const float M_PERCENT = 0.5;
 class Population {
 public:
     Population();
-    Population(unsigned long int start_pop, double sterile_percent, int sterile_interval, int sterile_period, int sterile_age);
     Population(unsigned long int start_pop, unsigned long int sterile_amount, int sterile_interval, int sterile_period, int sterile_age);
     void die();
     void age();
@@ -37,8 +36,8 @@ private:
     double death_rate_;
     double mate_rate_;
     unsigned long int stable_pop_;
-    double sterile_percent_;
     unsigned long int sterile_amount_;
+    unsigned long int total_sterile_introduced_;
     int sterile_interval_;
     int sterile_period_;
     int sterile_age_;
