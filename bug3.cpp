@@ -116,7 +116,7 @@ void Population::breed () {
     breeds = BREED_COEFFICIENT * mate_rate_ * breedable_females;
     unsigned long int new_males = breeds * M_PERCENT * (std::rand() % 40 + 80);
     unsigned long int new_females = breeds * (1 - M_PERCENT) * (std::rand() % 40 + 80);
-    std::cout << new_males << "   " << new_females << "   " << breeds << "   " << mate_rate_ << "   " << male_population(MATURE_AGE) << "   " << sterile_male_population(MATURE_AGE);
+    //std::cout << new_males << "   " << new_females << "   " << breeds << "   " << mate_rate_ << "   " << male_population(MATURE_AGE) << "   " << sterile_male_population(MATURE_AGE);
     
     males_[0] = new_males;
     females_[0] = new_females;
@@ -129,7 +129,7 @@ void Population::introduce_sterile_males () {
 
 
 void Population::update () {
-    printInfo();
+    //printInfo();
     if ((day_ < sterile_period_ || sterile_period_ == -1) && day_ % sterile_interval_ == 0) {
         introduce_sterile_males();
     }
@@ -137,12 +137,11 @@ void Population::update () {
     breed();
 }
 
-void Population::iterate (int days, int expStart, int expInterval, std::ofstream& o) {
+void Population::iterate (int days, std::ofstream& o) {
     while(day_ <= days && male_population(0) > 0 && female_population(0) > 0) {
-        if(day_ >= expStart && (expInterval == -1 || (day_ - expStart) % expInterval == 0))
-            exportData(o);
         update();
     }
+    exportData(o);
 }
 
 //
@@ -151,42 +150,15 @@ void Population::iterate (int days, int expStart, int expInterval, std::ofstream
 
 void Population::printInfo() {
     std::cout << "[Day " << day_ << "]\nMales: " << male_population(0) << "\nFemales: " << female_population(0) << "\nSterile: " << sterile_male_population(0) << "\nCooldown: " << cooldown_female_population() << "\nDeath Rate: " << death_rate_ << "\n\n";
-    /**std::cout << "Males: ";
-    for(int i = 0;i < MAX_MALE_AGE;++i) {
-        std::cout << "[" << males_[i] << "]";
-    }
-    std::cout << "\n";
-    std::cout << "Females: ";
-    for(int i = 0;i < MAX_FEMALE_AGE;++i) {
-        std::cout << "[" << females_[i] << "]";
-    }
-    std::cout << "\n";
-    std::cout << "Sterile: ";
-    for(int i = 0;i < MAX_MALE_AGE;++i) {
-        std::cout << "[" << sterile_males_[i] << "]";
-    }
-    std::cout << "\n";
-    std::cout << "Cooldown: ";
-    for(int i = 0;i < BREED_COOLDOWN;++i) {
-        std::cout << "[" << breeds_[i] << "]";
-    }**/
-    std::cout << "\n";
 }
 
 // Writes data to a csv file
 std::ofstream& Population::exportData(std::ofstream& out){
-    out << male_population(0)
-    << "," << female_population(0)
-    << "," << sterile_male_population(0)
-    << "," << total_population(0)
-    << "," << death_rate_
-    << "," << mate_rate_
-    << "," << stable_pop_
-    << "," << sterile_amount_
-    << "," << sterile_interval_
+    out << sterile_amount_
     << "," << sterile_period_
-    << "," << sterile_age_
-    << "," << day_ 
+    << "," << sterile_interval_
+    << "," << total_population(0)
+    << "," << day_
     << "," << total_sterile_introduced_ << std::endl;
     return out;
 }

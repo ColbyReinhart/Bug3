@@ -7,7 +7,7 @@ const int MAX_MALE_AGE = 30;
 const int MAX_FEMALE_AGE = 37;
 const int BREED_COOLDOWN = 3;
 const int MATURE_AGE = 6;
-const float DEATH_COEFFICIENT = 0.5;
+const float DEATH_COEFFICIENT = 0.25;
 const float BREED_COEFFICIENT = 0.001;
 const float M_PERCENT = 0.5;
 
@@ -20,7 +20,7 @@ public:
     void breed();
     void introduce_sterile_males();
     void update();
-    void iterate(int days, int expStart, int expInterval, std::ofstream& o);
+    void iterate(int days, std::ofstream& o);
     void printInfo();
     unsigned long int male_population(int start_age) const;
     unsigned long int female_population(int start_age) const;

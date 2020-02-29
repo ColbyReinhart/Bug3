@@ -58,12 +58,12 @@ int main(){
             
             std::cout << "Beginning simulation\n";
             Population testPop(start, introPercent, interval, period, age);
-            testPop.iterate(maxDays, startExp, exportInt, csv);
+            testPop.iterate(maxDays, csv);
         }
         else{
             std::cout << "Beginning simulation with default parameters\n";
             Population testPop(1000000000, 100, 1, -1, 6);
-            testPop.iterate(maxDays, startExp, exportInt, csv);
+            testPop.iterate(maxDays, csv);
         }
 
          std::cout << "Run a test? [y/n]: ";
